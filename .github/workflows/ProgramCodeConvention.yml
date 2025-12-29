@@ -38,7 +38,7 @@ jobs:
       - name: Validate product message
         run: |
           FILE=ProgramCode.cs
-          if ! grep -E "Smart Environment Control System" $FILE; then
+          if ! grep -E "Wellness Tracker Application" $FILE; then
             echo "❌ Product name output not found"
             exit 1
           fi
