@@ -1,0 +1,44 @@
+name: Check Software Versions
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  bl-software-check:
+    name: Business Logic – Versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull Repository
+        uses: actions/checkout@v4
+
+      - name: Show OS Information
+        run: |
+          echo "Operating System Info:"
+          lsb_release -a || cat /etc/os-release
+
+      - name: Display .NET SDK Version
+        run: |
+          echo ".NET SDK Version:"
+          dotnet --version
+
+      - name: Display C# Compiler Info
+        run: |
+          echo "C# Compiler Version:"
+          csc -version || echo "CSC compiler not installed"
+
+  db-tools-check:
+    name: Data Access – Versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: SQL Client Version
+        run: |
+          echo "SQL Server Client Version:"
+          sqlcmd -? || echo "sqlcmd not installed"
+
+      - name: Docker Info for DB
+        run: |
+          echo "Docker Version:"
+          docker --version
