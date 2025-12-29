@@ -1,0 +1,47 @@
+name: Program Code Convention Check
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  validate-program-code:
+    name: Validate C# Code Conventions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check file exists
+        run: |
+          if [ ! -f ProgramCode.cs ] && [ ! -f ProgramCodeModified.cs ]; then
+            echo "Program code file not found"
+            exit 1
+          fi
+
+      - name: Validate namespace naming
+        run: |
+          FILE=ProgramCode.cs
+          if grep -E "namespace [a-z]" $FILE; then
+            echo "❌ Namespace must start with uppercase letter"
+            exit 1
+          fi
+
+      - name: Validate class name
+        run: |
+          FILE=ProgramCode.cs
+          if ! grep -E "class Program" $FILE; then
+            echo "❌ Class Program not found"
+            exit 1
+          fi
+
+      - name: Validate output text
+        run: |
+          FILE=ProgramCode.cs
+          if ! grep -E "Smart Environment Control System" $FILE; then
+            echo "❌ Product name message not found"
+            exit 1
+          fi
+
+      - name: Convention passed
+        run: echo "Program code passed all convention rules"
