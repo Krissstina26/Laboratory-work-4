@@ -1,4 +1,4 @@
-name: Program Code Convention Check
+name: Program Code Linter
 
 on:
   push:
@@ -6,20 +6,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate-program-code:
-    name: Validate C# Code Conventions
+  lint-program-code:
+    name: C# Program Code Linter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check file exists
+      - name: Check program file exists
         run: |
           if [ ! -f ProgramCode.cs ] && [ ! -f ProgramCodeModified.cs ]; then
             echo "Program code file not found"
             exit 1
           fi
 
-      - name: Validate namespace naming
+      - name: Validate namespace format
         run: |
           FILE=ProgramCode.cs
           if grep -E "namespace [a-z]" $FILE; then
@@ -31,17 +31,21 @@ jobs:
         run: |
           FILE=ProgramCode.cs
           if ! grep -E "class Program" $FILE; then
-            echo "❌ Class Program not found"
+            echo "❌ Class name must be 'Program'"
             exit 1
           fi
 
-      - name: Validate output text
+      - name: Validate product message
         run: |
           FILE=ProgramCode.cs
           if ! grep -E "Smart Environment Control System" $FILE; then
-            echo "❌ Product name message not found"
+            echo "❌ Product name output not found"
             exit 1
           fi
+
+      - name: Linter success
+        run: echo "Program code passed all linting rules"
+
 
       - name: Convention passed
         run: echo "Program code passed all convention rules"
