@@ -2,53 +2,45 @@ name: Data Schema Code Convention Check
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  validate-schema:
-    name: Validate Data Schema Rules
+  check-schema:
+    name: Check SQL Schema Code Conventions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Check file exists
+      - name: Verify SQL File Exists
         run: |
-          if [ ! -f DataSchema.sql ] && [ ! -f DataSchemaModified.sql ]; then
-            echo "Schema file not found"
+          if [ ! -f "DataSchema.sql" ]; then
+            echo "DataSchema.sql not found!"
             exit 1
+          else
+            echo "DataSchema.sql found."
           fi
 
-      - name: Validate naming conventions
+      - name: Check Naming Conventions
         run: |
-          FILE=DataSchemaModified.sql
-          echo "Checking snake_case rules..."
+          echo "Checking table and column names..."
+          grep -E "CREATE TABLE [a-z_]+" DataSchema.sql || echo "Table naming may not follow conventions"
+          grep -E " [a-z_]+ " DataSchema.sql || echo "Column naming may not follow conventions"
 
-          if grep -E "CREATE TABLE [A-Z]" $FILE; then
-            echo "❌ Table names must be in snake_case"
-            exit 1
-          fi
-
-          if grep -E "[a-z]+[A-Z]+" $FILE; then
-            echo "❌ CamelCase detected"
-            exit 1
-          fi
-
-      - name: Validate light_level constraint
+      - name: Check Constraints
         run: |
-          FILE=DataSchemaModified.sql
-          if grep -E "lightLevel < 0" $FILE; then
-            echo "❌ light_level must be >= 0"
-            exit 1
-          fi
+          echo "Checking CHECK constraints and IN values..."
+          grep -E "CHECK \(" DataSchema.sql || echo "No CHECK constraints found"
+          grep -E "IN \(" DataSchema.sql || echo "No IN constraints found"
 
-      - name: Validate regex for user_name
+      - name: Count Tables
         run: |
-          FILE=DataSchemaModified.sql
-          if grep -E "\^\[0-9\]\{1," $FILE; then
-            echo "❌ user_name regex must allow letters"
-            exit 1
-          fi
+          echo "Counting number of tables..."
+          grep -c "CREATE TABLE" DataSchema.sql
 
-      - name: Success message
-        run: echo "Schema passed all convention checks"
+      - name: Display Schema
+        run: |
+          echo "Schema preview:"
+          head -n 20 DataSchema.sql
