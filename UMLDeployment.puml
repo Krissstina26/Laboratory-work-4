@@ -1,0 +1,45 @@
+@startuml
+title UML-Deployment Diagram — Архітектура ПП (компактна версія)
+
+' --- Апаратні вузли ---
+node "Користувацький пристрій\n(ПК / Смартфон)" as Client
+node "Сервер додатку" as AppServer
+node "Сервер баз даних" as DBServer
+
+' --- Presentation Layer (PL) ---
+artifact "UI_Lighting\n(FR1)" as UI_Lighting
+artifact "UI_Safety\n(FR2)" as UI_Safety
+artifact "UI_CreativeChat\n(FR3)" as UI_Creative
+
+' --- Business Logic Layer (BL) ---
+artifact "Logic_Lighting\n(BL)" as Logic_Lighting
+artifact "Logic_Safety\n(BL)" as Logic_Safety
+artifact "Logic_Creative\n(BL)" as Logic_Creative
+
+' --- Application/Data Access Layer (AL) ---
+database "DB_Lighting\n[tables: LightLevel, Recommendations]\nModel: Relational" as DB_Lighting
+database "DB_Safety\n[tables: Hazards, Alerts]\nModel: Relational" as DB_Safety
+database "DB_Creative\n[tables: Chats, Books]\nModel: JSON" as DB_Creative
+
+' --- Зв'язки передачі управління ---
+Client --> UI_Lighting
+Client --> UI_Safety
+Client --> UI_CreativeChat
+
+UI_Lighting --> Logic_Lighting
+UI_Safety --> Logic_Safety
+UI_CreativeChat --> Logic_Creative
+
+Logic_Lighting --> DB_Lighting
+Logic_Safety --> DB_Safety
+Logic_Creative --> DB_Creative
+
+' --- Зв'язки передачі даних ---
+UI_Lighting ..> Logic_Lighting : data exchange
+UI_Safety ..> Logic_Safety : data exchange
+UI_CreativeChat ..> Logic_Creative : data exchange
+
+Logic_Lighting ..> DB_Lighting : CRUD
+Logic_Safety ..> DB_Safety : CRUD
+Logic_Creative ..> DB_Creative : CRUD
+@enduml
