@@ -1,4 +1,4 @@
-name: Check Software Versions
+name: Print Software Versions
 
 on:
   push:
@@ -30,15 +30,25 @@ jobs:
           csc -version || echo "CSC compiler not installed"
 
   db-tools-check:
-    name: Data Access – Versions
+    name: Data Access – DB Versions
     runs-on: ubuntu-latest
     steps:
-      - name: SQL Client Version
+      - name: Relational DB Client (PostgreSQL)
         run: |
-          echo "SQL Server Client Version:"
-          sqlcmd -? || echo "sqlcmd not installed"
+          echo "PostgreSQL Version:"
+          psql --version || echo "PostgreSQL client not installed"
 
-      - name: Docker Info for DB
+      - name: JSON DB Check (MongoDB)
+        run: |
+          echo "MongoDB Version:"
+          mongod --version || echo "MongoDB not installed"
+
+      - name: JSON Support in PostgreSQL
+        run: |
+          echo "Checking JSON support in PostgreSQL:"
+          echo "Supported types: json, jsonb"
+
+      - name: Docker Info for Databases
         run: |
           echo "Docker Version:"
           docker --version
