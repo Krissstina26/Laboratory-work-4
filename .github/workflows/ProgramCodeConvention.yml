@@ -13,24 +13,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Крок 1: Завантаження коду з репозиторію
       - name: Checkout Code in Repository
         uses: actions/checkout@v4
 
+      # Крок 2: Встановлення .NET SDK
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
+      # Крок 3: Перевірка, що файл Program.cs існує
       - name: Verify Program Code Exists
         run: |
-          if [ ! -f ProgramCode.cs ]; then
-            echo "ProgramCode.cs not found"
+          if [ ! -f WellnessApp/Program.cs ]; then
+            echo "Program.cs not found"
             exit 1
           fi
 
+      # Крок 4: Виконання лінтера dotnet format
       - name: Run C# Code Linter (dotnet format)
-        run: |
-          dotnet format ProgramCode.cs --verify-no-changes
+        run: dotnet format WellnessApp/WellnessApp.csproj --verify-no-changes
+
+      # Крок 5: Повідомлення про успішне проходження лінтера
+      - name: Convention passed
+        run: echo "Program code passed all convention rules"
 
 
 
