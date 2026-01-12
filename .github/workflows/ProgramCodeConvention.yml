@@ -23,21 +23,26 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # Крок 3: Перевірка, що файл Program.cs існує
+      # Крок 3: Перевірка, що файл Program.cs існує у корені репозиторію
       - name: Verify Program Code Exists
         run: |
-          if [ ! -f WellnessApp/Program.cs ]; then
+          if [ ! -f Program.cs ]; then
             echo "Program.cs not found"
             exit 1
           fi
 
       # Крок 4: Виконання лінтера dotnet format
       - name: Run C# Code Linter (dotnet format)
-        run: dotnet format WellnessApp/WellnessApp.csproj --verify-no-changes
+        run: |
+          # Створюємо тимчасовий проект для лінтингу
+          dotnet new console -n TempProject -o TempProject --force
+          mv Program.cs TempProject/Program.cs
+          dotnet format TempProject/TempProject.csproj --verify-no-changes
 
       # Крок 5: Повідомлення про успішне проходження лінтера
       - name: Convention passed
         run: echo "Program code passed all convention rules"
+
 
 
 
