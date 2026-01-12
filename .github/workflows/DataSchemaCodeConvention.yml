@@ -1,46 +1,25 @@
-name: Data Schema Code Convention Check
+name: SQL Linter
 
 on:
   push:
     branches:
       - main
+      - LW11
   workflow_dispatch:
 
 jobs:
-  check-schema:
-    name: Check SQL Schema Code Conventions
+  SQLLinter:
+    name: SQL Schema Code Convention Check
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code in Repository
         uses: actions/checkout@v4
 
-      - name: Verify SQL File Exists
+      - name: Install SQLFluff
         run: |
-          if [ ! -f "DataSchema.sql" ]; then
-            echo "DataSchema.sql not found!"
-            exit 1
-          else
-            echo "DataSchema.sql found."
-          fi
+          pip install sqlfluff
 
-      - name: Check Naming Conventions
+      - name: Run SQL Linter
         run: |
-          echo "Checking table and column names..."
-          grep -E "CREATE TABLE [a-z_]+" DataSchema.sql || echo "Table naming may not follow conventions"
-          grep -E " [a-z_]+ " DataSchema.sql || echo "Column naming may not follow conventions"
-
-      - name: Check Constraints
-        run: |
-          echo "Checking CHECK constraints and IN values..."
-          grep -E "CHECK \(" DataSchema.sql || echo "No CHECK constraints found"
-          grep -E "IN \(" DataSchema.sql || echo "No IN constraints found"
-
-      - name: Count Tables
-        run: |
-          echo "Counting number of tables..."
-          grep -c "CREATE TABLE" DataSchema.sql
-
-      - name: Display Schema
-        run: |
-          echo "Schema preview:"
-          head -n 20 DataSchema.sql
+          sqlfluff lint DataSchema.sql --dialect postgres
