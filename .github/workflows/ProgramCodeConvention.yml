@@ -2,49 +2,36 @@ name: Program Code Linter
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - LW11
   workflow_dispatch:
 
 jobs:
-  lint-program-code:
-    name: C# Program Code Linter
+  ProgramCodeLinter:
+    name: C# Program Code Convention Check
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code in Repository
+        uses: actions/checkout@v4
 
-      - name: Check program file exists
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Verify Program Code Exists
         run: |
-          if [ ! -f ProgramCode.cs ] && [ ! -f ProgramCodeModified.cs ]; then
-            echo "Program code file not found"
+          if [ ! -f ProgramCode.cs ]; then
+            echo "ProgramCode.cs not found"
             exit 1
           fi
 
-      - name: Validate namespace format
+      - name: Run C# Code Linter (dotnet format)
         run: |
-          FILE=ProgramCode.cs
-          if grep -E "namespace [a-z]" $FILE; then
-            echo "❌ Namespace must start with uppercase letter"
-            exit 1
-          fi
+          dotnet format ProgramCode.cs --verify-no-changes
 
-      - name: Validate class name
-        run: |
-          FILE=ProgramCode.cs
-          if ! grep -E "class Program" $FILE; then
-            echo "❌ Class name must be 'Program'"
-            exit 1
-          fi
-
-      - name: Validate product message
-        run: |
-          FILE=ProgramCode.cs
-          if ! grep -E "Wellness Tracker Application" $FILE; then
-            echo "❌ Product name output not found"
-            exit 1
-          fi
-
-      - name: Linter success
-        run: echo "Program code passed all linting rules"
 
 
       - name: Convention passed
